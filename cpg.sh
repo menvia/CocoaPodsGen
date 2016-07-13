@@ -3,7 +3,7 @@
 # Script to generate Cocoapods new lib versions and submit to your Cocoapods Spec repo 
 # Copyright (C) 2016 Menvia - All Rights Reserved
 # Permission to copy and modify is granted under the Apache License, Version 2.0
-# Version 0.0.2 - Last revised 2016.07.12
+# Version 0.0.3 - Last revised 2016.07.13
 
 # Parse YAML files for CocoaPodsGen config file
 parse_yaml() {
@@ -42,8 +42,22 @@ COCOAPODS_PROJ_DIR="${COCOAPODS_DIR}/${PROJECT_DIR}/"
 # TODO: Find the .plist file automatically
 # find . -name '*Info.plist' -print
 
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [[ ${BRANCH} != "master" ]]; then
+	echo "/***************** ERROR ********************"
+	echo " * Your version needs to be generated based *"
+	echo " * on the branch master of this project,    *"
+	echo " * please ensure master branch is up to     *"
+	echo " * date with your last developments,        *"
+	echo " * checkout it and run CPG again.           *"
+	echo " ********************************************/"
+	return
+fi
+
+# Update the local branch (hides the output from the user)
+git pull &> /dev/null
+
 # Get current lib version
-git pull
 VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "${PLIST_FILE}")
 echo "Your current library version is: ${VERSION}"
 
